@@ -35,6 +35,7 @@ function setup(shaders)
     let velocity = 0;
     let heliY = 0;
     let heliX = 1.5;
+    let heliTime = 0;
     let leanAngle = 0;
     let drop = false;
     let time = 0;
@@ -43,7 +44,7 @@ function setup(shaders)
     let boxX = 0;
     let boxZ = 0;
     let vBoxY = 0;
-    let rt = false;
+    //let rt = false;
     let reduceLean = false;
     let aceleration = 0;
     let increaseVelocity = false;
@@ -58,18 +59,8 @@ function setup(shaders)
         switch (e.key) {
             case "ArrowLeft":
                 reduceLean = true;
-                rt = false;
                 increaseVelocity = false;
-                while(aceleration > 0){
-                    aceleration -= 0.01;
-                    console.log("-1");
-            }
-               console.log("aceleration: " + aceleration);
                 break;
-
-      
-
-                
             }
         }
 
@@ -106,15 +97,13 @@ function setup(shaders)
             //case up arrow key engine start
             case 'ArrowUp':
                 engine = true;
-                if(heliY < 3){
-                heliY+=0.05;
-                }
+                heliY < 3 ? heliY+=0.05 : heliY = 3;
                 console.log("engine start");
                 break;
             //case down arrow key engine stop
             case 'ArrowDown':
                 if(heliY > 0.009){
-                heliY-=0.01;
+                heliY-=0.05;
                 console.log("baseHeli",heliY)
                 }
                 else{
@@ -125,29 +114,23 @@ function setup(shaders)
             //case left arrow lean helicopter to front until 30 degrees
             case 'ArrowLeft':
                 if(leanAngle <= 30 && engine == true){
-                    
-                    leanAngle+=0.5;
+                    leanAngle+=1;
                     increaseVelocity = true;
-                   // rt=true;
-                   aceleration < 3 ? aceleration+=0.1 : aceleration = 3;
-                    console.log("leanAngle",leanAngle)
-                    console.log("goFoward",heliX)
+              
+               
                 }
                 break;
             //case right arrow lean helicopter to back until 0 degrees
             case 'ArrowRight':
                 if(leanAngle >= 0 && engine == true ){
-                    leanAngle-=1;
-                    //goFoward=0;
-                   // goFoward-=0.1;
-                   //increaseVelocity = false;
-                   //rt=false;
-                   aceleration > 0 ? aceleration-=0.1 : aceleration = 0;
-                   aceleration <= 0 ? increaseVelocity = false : null;
+                    leanAngle-=0.5;
+                   increaseVelocity = false;
+                   aceleration > 0 ? aceleration-=0.01 : aceleration = 0;
+                   //aceleration <= 0 ? increaseVelocity = false : null;
                 }
                 break;
             //case spacebar drop a box from helicopter
-            case ' ':
+             case ' ':
                 console.log("spacebar");
                 drop = true;
                 boxTime = time;
@@ -222,14 +205,14 @@ function setup(shaders)
        //multRotationY(leanAngle)
         multTranslation([heliX, heliY, 0]);
         multRotationZ(leanAngle);
+        multRotationY(-90)
         multScale([0.4, 0.4, 0.4]);
         pushMatrix();
         multTranslation([0,0.6,0]);
         multScale([1.5,0.5,1]);
         //paint the body of the helicopter with a color red
         gl.uniform4fv(gl.getUniformLocation(program, "uColor"), [1, 0, 0,1.0]);
-        uploadModelView();
-        
+        uploadModelView();  
         SPHERE.draw(gl, program, mode);
         popMatrix();
         //draw the legs ot the helicopter using a cube
@@ -301,9 +284,7 @@ function setup(shaders)
         uploadModelView();
         SPHERE.draw(gl, program, mode);
         popMatrix();
-
         pushMatrix();
-
         //draw the helices in the tail of the helicopter using a cylinder
         pushMatrix();
         multTranslation([1.8,0.78,0.05]);
@@ -406,10 +387,8 @@ function setup(shaders)
         uploadModelView();
         CUBE.draw(gl, program, mode);
         popMatrix();
-    
-
         //make a loop to draw the windows on the building with 15 cubes
-      var wh=0;
+        var wh=0;
         var ww=0;
       //  for(i=0;i<3;i++){
           for(var k=0;k<3;k++){
@@ -427,7 +406,6 @@ function setup(shaders)
                 ww+=0.3;
                 wh=0;
           }
-    
           var wh2=0;
           var ww2=0;
       //  for(i=0;i<3;i++){
@@ -567,15 +545,13 @@ function setup(shaders)
     }
 
     function dropbox(){
-
         //drop a box from the helicopter if engine is on and box fall with gravity for 5 seconds
-        if(engine && time-boxTime<=0.25){
+        if(engine && time-boxTime<=0.05){
             //apply gravity on boxY v0t−gt22
             let g = 9.80665;
-            let v0 = 0;
-            v0 = velocity + g * time;
+         
             vBoxY = g * time;
-            if(boxY>0.5){
+            if(boxY>0.1){
                 //time = time/1.5;
                 let t = time-boxTime;
                 //t*=0.5;
@@ -651,7 +627,7 @@ function setup(shaders)
         }
     
 
-        heliY === 0.009 ? engine = false  : null;
+        heliY === 0 ? engine = false  : null;
 
         if(reduceLean){   
             leanAngle = Math.max(leanAngle-0.5, 0);
@@ -660,20 +636,30 @@ function setup(shaders)
         
        
 
-        if(increaseVelocity){
-            if(velocity < 2){
-            velocity = velocity + aceleration * time;
+        if(increaseVelocity && engine){
+            if(velocity < 3){
+            velocity = velocity + aceleration * heliTime;
+            heliTime += 0.001;
+            aceleration < 3 ? aceleration+=0.02 : aceleration = 3;
             }
             mov+=velocity;
         }
         else{
-            if(velocity > 0){
-                velocity = velocity - aceleration * time;
+            if(velocity > 0 && engine){
+                //aceleration -=0.0009;
+                
+                velocity -= 0.1;
                 mov+=velocity;
-
+              //  console.log('velocity',velocity);
             }
+            else{
             velocity = 0;
+            aceleration = 0;
+            heliTime = 0;
+            }
         }
+
+       
         
         
         if(drop){
@@ -689,7 +675,11 @@ function setup(shaders)
         multRotationY(mov);
         helicopter();
 
+
         popMatrix();
+
+        
+
        
     }
 }
