@@ -59,7 +59,7 @@ function setup(shaders)
     let rotor = 0;
     let velocity = 0;
     let heliY = 0;
-    let heliX = 1.5;
+    let heliX = 1.7;
     let heliTime = 0;
     let leanAngle = 0;
     let drop = false;
@@ -571,25 +571,25 @@ function setup(shaders)
     function buildings()
     {
         pushMatrix();
-        multTranslation([1.1, 0.15, -1.5]);
+        multTranslation([1.77, 0.15, -1.7]);
         multScale([0.5, 0.5, 0.5]);
         uploadModelView();
         building();
         popMatrix();
         pushMatrix();
-        multTranslation([-1.2, 0.15, 1.5]);
+        multTranslation([-1.77, 0.15, 1.8]);
         multScale([0.5, 0.5, 0.5]);
         uploadModelView();
         building();
         popMatrix();
         pushMatrix();
-        multTranslation([1.2, 0.15, 1.5]);
+        multTranslation([1.77, 0.15, 1.8]);
         multScale([0.5, 0.5, 0.5]);
         uploadModelView();
         building();
         popMatrix();
         pushMatrix();
-        multTranslation([-1.2, 0.15, -1.5]);
+        multTranslation([-1.77, 0.15, -1.7]);
         multScale([0.5, 0.5, 0.5]);
         uploadModelView();
         building();
@@ -727,11 +727,11 @@ function setup(shaders)
         }
         if (increaseVelocity && engine)
         {
-            if (velocity < 5)
+            if (velocity < 4)
             {
                 velocity = velocity + aceleration * heliTime;
                 heliTime += 0.01;
-                aceleration < 3 ? aceleration += 0.02 : aceleration = 3;
+                aceleration < 3 ? aceleration += 0.005 : aceleration = 3;
             }
             mov += velocity;
         }
