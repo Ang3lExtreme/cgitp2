@@ -182,6 +182,7 @@ function setup(shaders)
                 }
                 else
                 {
+                    heliY = 0;
                     engine = false;
                 }
                 break;
